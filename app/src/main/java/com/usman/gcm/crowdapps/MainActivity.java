@@ -1,8 +1,5 @@
 package com.usman.gcm.crowdapps;
 
-import com.usman.gcm.crowdapps.adapter.CustomListAdapter;
-import com.usman.gcm.crowdapps.app.AppController;
-import com.usman.gcm.crowdapps.model.Movie;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +13,7 @@ import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.ListView;
@@ -25,7 +23,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonArrayRequest;
 
-public class MainActivity extends Activity {
+public class MainActivity extends ActionBarActivity {
     // Log tag
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -51,8 +49,8 @@ public class MainActivity extends Activity {
         pDialog.show();
 
         // changing action bar color
-        getActionBar().setBackgroundDrawable(
-                new ColorDrawable(Color.parseColor("#1b1b1b")));
+        //getActionBar().setBackgroundDrawable(
+        //        new ColorDrawable(Color.parseColor("#1b1b1b")));
 
         // Creating volley request obj
         JsonArrayRequest movieReq = new JsonArrayRequest(url,
@@ -121,7 +119,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    @Override
+   @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
