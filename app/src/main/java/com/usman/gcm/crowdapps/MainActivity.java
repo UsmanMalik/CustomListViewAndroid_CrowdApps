@@ -16,7 +16,10 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -99,6 +102,15 @@ public class MainActivity extends ActionBarActivity {
                 VolleyLog.d(TAG, "Error: " + error.getMessage());
                 hidePDialog();
 
+            }
+        });
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Movie getMovie = movieList.get(position);
+                Toast.makeText(getApplicationContext(), "Hi: " + getMovie.getTitle(), Toast.LENGTH_LONG).show();
             }
         });
 
