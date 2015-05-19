@@ -11,6 +11,14 @@ public class Movie {
     public Movie() {
     }
 
+
+    public Movie(Integer id, String title, String image){ // checking for database
+
+        this.title = title;
+        this.thumbnailUrl = image;
+    }
+
+
     public Movie(String name, String thumbnailUrl, int year, double rating,
                  ArrayList<String> genre) {
         this.title = name;

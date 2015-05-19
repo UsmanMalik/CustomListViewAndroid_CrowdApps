@@ -42,6 +42,33 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        ///// Database test /////
+
+        DatabaseHandler db = new DatabaseHandler(this);
+
+        /**
+         * CRUD Operations
+         * */
+        // Inserting Contacts
+        Log.d("Insert: ", "Inserting ..");
+        db.addContact(new Movie(1,"Ravi", "9100000000"));
+        db.addContact(new Movie(2,"Srinivas", "9199999999"));
+        db.addContact(new Movie(3,"Tommy", "9522222222"));
+        db.addContact(new Movie(4,"Karthik", "9533333333"));
+
+        // Reading all contacts
+        Log.d("Reading: ", "Reading all contacts..");
+        List<Movie> contacts = db.getAllContacts();
+
+        for (Movie cn : contacts) {
+            String log = " Title: " + cn.getTitle() + " ,Phone: " + cn.getThumbnailUrl();
+            // Writing Contacts to log
+            Log.d("Name: ", log);
+        }
+
+        //////////////////////////////////////////////////////
+
         listView = (ListView) findViewById(R.id.list);
         adapter = new CustomListAdapter(this, movieList);
         listView.setAdapter(adapter);
