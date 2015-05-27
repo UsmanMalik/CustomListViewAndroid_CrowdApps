@@ -118,6 +118,7 @@ genre: [
                 // Adding contact to list
                 contactList.add(contact);
             } while (cursor.moveToNext());
+            cursor.close(); // Cursor was not closed earlier
         }
 
         // return contact list
@@ -152,10 +153,11 @@ genre: [
         String countQuery = "SELECT  * FROM " + TABLE_CONTACTS;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
+        int totalContacts = cursor.getCount();
         cursor.close();
-
+        db.close();
         // return count
-        return cursor.getCount();
+        return totalContacts;
     }
 
 }

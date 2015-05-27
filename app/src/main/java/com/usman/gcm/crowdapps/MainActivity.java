@@ -1,6 +1,12 @@
 package com.usman.gcm.crowdapps;
 
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,10 +15,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -36,11 +49,17 @@ public class MainActivity extends ActionBarActivity {
     private List<Movie> movieList = new ArrayList<Movie>();
     private ListView listView;
     private CustomListAdapter adapter;
+    private Bitmap bm;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Intent i = new Intent(MainActivity.this, ViewGallery.class);
+        i.putExtra("classFrom", MainActivity.class.toString());
+        startActivity(i);
 
 
         ///// Database test /////
@@ -61,6 +80,10 @@ public class MainActivity extends ActionBarActivity {
         Log.d("Reading: ", "Reading all contacts..");
         List<Movie> contacts = db.getAllContacts();
 
+        int count = db.getContactsCount();
+        Log.e("Count: ", count+"");
+
+
         for (Movie cn : contacts) {
             String log = " Title: " + cn.getTitle() + " ,Phone: " + cn.getThumbnailUrl();
             // Writing Contacts to log
@@ -68,6 +91,15 @@ public class MainActivity extends ActionBarActivity {
         }
 
         //////////////////////////////////////////////////////
+        // Saving image from server
+
+        final BitmapFactory.Options bmOptions;
+        bmOptions = new BitmapFactory.Options();
+        bmOptions.inSampleSize = 1;
+
+
+
+        ///////////////////////////////////////////
 
         listView = (ListView) findViewById(R.id.list);
         adapter = new CustomListAdapter(this, movieList);
@@ -98,6 +130,7 @@ public class MainActivity extends ActionBarActivity {
                                 Movie movie = new Movie();
                                 movie.setTitle(obj.getString("title"));
                                 movie.setThumbnailUrl(obj.getString("image"));
+                                //downloadFile(obj.getString("image"));
                                 movie.setRating(((Number) obj.get("rating"))
                                         .doubleValue());
                                 movie.setYear(obj.getInt("releaseYear"));
@@ -143,6 +176,31 @@ public class MainActivity extends ActionBarActivity {
 
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(movieReq);
+    }
+
+    public void downloadFile(String uRl) {
+        File direct = new File(Environment.getExternalStorageDirectory()
+                + "/AnhsirkDasarp");
+
+        if (!direct.exists()) {
+            direct.mkdirs();
+        }
+
+        DownloadManager mgr = (DownloadManager) this.getSystemService(Context.DOWNLOAD_SERVICE);
+
+        Uri downloadUri = Uri.parse(uRl);
+        DownloadManager.Request request = new DownloadManager.Request(
+                downloadUri);
+
+        request.setAllowedNetworkTypes(
+                DownloadManager.Request.NETWORK_WIFI
+                        | DownloadManager.Request.NETWORK_MOBILE)
+                .setAllowedOverRoaming(false).setTitle("Demo")
+                .setDescription("Something useful. No, really.")
+                .setDestinationInExternalPublicDir("/AnhsirkDasarpFiles", "fileName.jpg");
+
+        mgr.enqueue(request);
+
     }
 
     @Override

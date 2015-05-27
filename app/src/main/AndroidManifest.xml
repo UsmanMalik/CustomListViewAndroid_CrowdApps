@@ -3,6 +3,7 @@
     package="com.usman.gcm.crowdapps" >
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name=".AppController"
@@ -18,6 +19,10 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".ViewGallery" >
+
         </activity>
     </application>
 
