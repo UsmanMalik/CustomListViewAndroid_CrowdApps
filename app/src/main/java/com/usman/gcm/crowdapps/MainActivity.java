@@ -44,12 +44,13 @@ public class MainActivity extends ActionBarActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     // Movies json url
-    private static final String url = "http://api.androidhive.info/json/movies.json";
+    private static final String url = "http://192.168.1.26:3000/api/category/complete_data";
     private ProgressDialog pDialog;
     private List<Movie> movieList = new ArrayList<Movie>();
     private ListView listView;
     private CustomListAdapter adapter;
     private Bitmap bm;
+    private static final String BaseUrl = "http://192.168.1.26:3000/";
 
 
     @Override
@@ -57,14 +58,14 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Intent i = new Intent(MainActivity.this, ViewGallery.class);
-        i.putExtra("classFrom", MainActivity.class.toString());
-        startActivity(i);
+      //  Intent i = new Intent(MainActivity.this, ViewGallery.class);
+      //  i.putExtra("classFrom", MainActivity.class.toString());
+      // startActivity(i);
 
 
         ///// Database test /////
 
-        DatabaseHandler db = new DatabaseHandler(this);
+       final DatabaseHandler db = new DatabaseHandler(this);
 
         /**
          * CRUD Operations
@@ -82,6 +83,12 @@ public class MainActivity extends ActionBarActivity {
 
         int count = db.getContactsCount();
         Log.e("Count: ", count+"");
+
+        int countCat = db.getCategoryCount();
+        Log.e("countCat: ", countCat+"");
+
+        int countBox = db.getBoxesCount();
+        Log.e("countBox: ", countBox+"");
 
 
         for (Movie cn : contacts) {
@@ -127,24 +134,58 @@ public class MainActivity extends ActionBarActivity {
                             try {
 
                                 JSONObject obj = response.getJSONObject(i);
-                                Movie movie = new Movie();
-                                movie.setTitle(obj.getString("title"));
-                                movie.setThumbnailUrl(obj.getString("image"));
+                                Category c = new Category();
+                                c.setId(obj.getInt("id"));
+                                c.setTitle(obj.getString("title"));
+                                c.setDescription(obj.getString("description"));
+                                c.setImage_path(BaseUrl + obj.getString("avatar_url_thumb"));
+                                downloadFile(c.getImage_path());
+
+                                db.addCategory(c);
+
+                                Log.e("image path",c.getImage_path());
+
+                                //Movie movie = new Movie();
+                                //movie.setTitle(obj.getString("title"));
+                                //movie.setThumbnailUrl(obj.getString("image"));
                                 //downloadFile(obj.getString("image"));
-                                movie.setRating(((Number) obj.get("rating"))
-                                        .doubleValue());
-                                movie.setYear(obj.getInt("releaseYear"));
+                                //movie.setRating(((Number) obj.get("rating"))
+                                //        .doubleValue());
+                                //movie.setYear(obj.getInt("releaseYear"));
 
                                 // Genre is json array
-                                JSONArray genreArry = obj.getJSONArray("genre");
+                                JSONArray boxesArray = obj.getJSONArray("boxes");
+                                
                                 ArrayList<String> genre = new ArrayList<String>();
-                                for (int j = 0; j < genreArry.length(); j++) {
-                                    genre.add((String) genreArry.get(j));
+                                
+                                for (int j = 0; j < boxesArray.length(); j++) {
+                                    
+                                    try {
+                                        JSONObject objBox = boxesArray.getJSONObject(j);
+
+                                        Box b = new Box();
+
+                                        b.setId(objBox.getInt("id"));
+                                        b.setCategory_id(objBox.getInt("category_id"));
+                                        b.setTitle(objBox.getString("title"));
+                                        b.setDescription(objBox.getString("description"));
+                                        b.setImage_path(BaseUrl + objBox.getString("avatar_url_medium"));
+                                        downloadFile(b.getImage_path());
+
+                                        db.addBox(b);
+
+                                        Log.e("Box title", b.getTitle());
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    
+                                    
+                                    //genre.add((String) boxesArray.get(j));
                                 }
-                                movie.setGenre(genre);
+                                //movie.setGenre(genre);
 
                                 // adding movie to movies array
-                                movieList.add(movie);
+                                //movieList.add(movie);
 
                             } catch (JSONException e) {
                                 e.printStackTrace();

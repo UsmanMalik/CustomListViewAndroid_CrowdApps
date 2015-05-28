@@ -101,7 +101,10 @@ public class ViewGallery extends Activity {
 
         @Override
         public int getCount() {
-            return mResources.length;
+           int length = FilePathStrings.length;
+            //return mResources.length;
+
+            return length;
         }
 
         @Override
