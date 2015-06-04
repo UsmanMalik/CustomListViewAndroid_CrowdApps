@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
@@ -49,28 +50,36 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonArrayRequest;
 
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends ActionBarActivity {
     // Log tag
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private static final String BaseUrl = "http://192.168.1.3:3000/";
+    private static final String BaseUrl = "http://192.168.1.5:3000/";
     private static final String url = BaseUrl+"api/category/complete_data";
     private ProgressDialog pDialog;
     private List<Movie> movieList = new ArrayList<Movie>(); // REMOVE
+    private List<Category> categoryList = new ArrayList<Category>();
+    private List<Box> boxList = new ArrayList<Box>();
     private ListView listView;
     private CustomListAdapter adapter;
-    private Bitmap bm;
+    //private Bitmap bm;
 
 
 
@@ -97,16 +106,20 @@ public class MainActivity extends ActionBarActivity {
     Context context;
 
     String regid;
+    ///// Database test /////
 
+    final DatabaseHandler db = new DatabaseHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ////////////////// GCM //////////////////////////
+        // Register GCM
 
         context = getApplicationContext();
+
 
         // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
         if (checkPlayServices()) {
@@ -116,38 +129,36 @@ public class MainActivity extends ActionBarActivity {
 
             if (regid.isEmpty()) {
                 registerInBackground();
+
             }
         } else {
             Log.i(TAG, "No valid Google Play Services APK found.");
 
         }
 
-        if (android.os.Build.VERSION.SDK_INT > 9) { // UI Tread POST -- Not a good idea
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
+        int countCategory = db.getCategoryCount();
+        Log.e("count category: ",countCategory +"");
+        if(countCategory == 0){
+            Log.e("Count Zero","Fetch data from server");
+
+            getDataFromServer();
+        }else{
+            categoryList = db.getAllCategories();
+
         }
 
-        sendRegistrationIdToBackend(); // Send reg id to database
-
-
-
-
-
-
-      //  Intent i = new Intent(MainActivity.this, ViewGallery.class);
+        //  Intent i = new Intent(MainActivity.this, ViewGallery.class);
       //  i.putExtra("classFrom", MainActivity.class.toString());
       // startActivity(i);
 
 
-        ///// Database test /////
 
-       final DatabaseHandler db = new DatabaseHandler(this);
 
         /**
          * CRUD Operations
          * */
         // Inserting Contacts
-        Log.d("Insert: ", "Inserting ..");
+     /*   Log.d("Insert: ", "Inserting ..");
         db.addContact(new Movie(1,"Ravi", "9100000000"));
         db.addContact(new Movie(2,"Srinivas", "9199999999"));
         db.addContact(new Movie(3,"Tommy", "9522222222"));
@@ -156,6 +167,7 @@ public class MainActivity extends ActionBarActivity {
         // Reading all contacts
         Log.d("Reading: ", "Reading all contacts..");
         List<Movie> contacts = db.getAllContacts();
+        List<Box> boxes = db.getAllBoxes();
 
         int count = db.getContactsCount();
         Log.e("Count: ", count+"");
@@ -173,6 +185,12 @@ public class MainActivity extends ActionBarActivity {
             Log.d("Name: ", log);
         }
 
+        for (Box cn : boxes) {
+            String log = " Title: " + cn.getTitle() + " ,Des: " + cn.getDescription();
+            // Writing Contacts to log
+            Log.d("Name: ", log);
+        }
+
         //////////////////////////////////////////////////////
         // Saving image from server
 
@@ -180,12 +198,12 @@ public class MainActivity extends ActionBarActivity {
         bmOptions = new BitmapFactory.Options();
         bmOptions.inSampleSize = 1;
 
-
+*/
 
         ///////////////////////////////////////////
 
         listView = (ListView) findViewById(R.id.list);
-        adapter = new CustomListAdapter(this, movieList);
+        adapter = new CustomListAdapter(this, categoryList);
         listView.setAdapter(adapter);
 
         pDialog = new ProgressDialog(this);
@@ -193,10 +211,45 @@ public class MainActivity extends ActionBarActivity {
         pDialog.setMessage("Loading...");
         pDialog.show();
 
-        // changing action bar color
-        //getActionBar().setBackgroundDrawable(
-        //        new ColorDrawable(Color.parseColor("#1b1b1b")));
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+                Movie getMovie = movieList.get(position);
+                Toast.makeText(getApplicationContext(), "Hi: " + getMovie.getTitle(), Toast.LENGTH_LONG).show();
+            }
+        });
+
+
+    }
+
+    public void downloadFile(String uRl) {
+        File direct = new File(Environment.getExternalStorageDirectory()
+                + "/AnhsirkDasarp");
+
+        if (!direct.exists()) {
+            direct.mkdirs();
+        }
+
+        DownloadManager mgr = (DownloadManager) this.getSystemService(Context.DOWNLOAD_SERVICE);
+
+        Uri downloadUri = Uri.parse(uRl);
+        DownloadManager.Request request = new DownloadManager.Request(
+                downloadUri);
+
+        request.setAllowedNetworkTypes(
+                DownloadManager.Request.NETWORK_WIFI
+                        | DownloadManager.Request.NETWORK_MOBILE)
+                .setAllowedOverRoaming(false).setTitle("Demo")
+                .setDescription("Something useful. No, really.")
+                .setDestinationInExternalPublicDir("/AnhsirkDasarpFiles", "fileName.jpg");
+
+        mgr.enqueue(request);
+
+    }
+
+    public void getDataFromServer(){
+        Log.e("Get Data from S", " Called");
         // Creating volley request obj
         JsonArrayRequest movieReq = new JsonArrayRequest(url,
                 new Response.Listener<JSONArray>() {
@@ -231,11 +284,11 @@ public class MainActivity extends ActionBarActivity {
 
                                 // Genre is json array
                                 JSONArray boxesArray = obj.getJSONArray("boxes");
-                                
+
                                 ArrayList<String> genre = new ArrayList<String>();
-                                
+
                                 for (int j = 0; j < boxesArray.length(); j++) {
-                                    
+
                                     try {
                                         JSONObject objBox = boxesArray.getJSONObject(j);
 
@@ -254,8 +307,8 @@ public class MainActivity extends ActionBarActivity {
                                     } catch (JSONException e) {
                                         e.printStackTrace();
                                     }
-                                    
-                                    
+
+
                                     //genre.add((String) boxesArray.get(j));
                                 }
                                 //movie.setGenre(genre);
@@ -282,42 +335,8 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                Movie getMovie = movieList.get(position);
-                Toast.makeText(getApplicationContext(), "Hi: " + getMovie.getTitle(), Toast.LENGTH_LONG).show();
-            }
-        });
-
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(movieReq);
-    }
-
-    public void downloadFile(String uRl) {
-        File direct = new File(Environment.getExternalStorageDirectory()
-                + "/AnhsirkDasarp");
-
-        if (!direct.exists()) {
-            direct.mkdirs();
-        }
-
-        DownloadManager mgr = (DownloadManager) this.getSystemService(Context.DOWNLOAD_SERVICE);
-
-        Uri downloadUri = Uri.parse(uRl);
-        DownloadManager.Request request = new DownloadManager.Request(
-                downloadUri);
-
-        request.setAllowedNetworkTypes(
-                DownloadManager.Request.NETWORK_WIFI
-                        | DownloadManager.Request.NETWORK_MOBILE)
-                .setAllowedOverRoaming(false).setTitle("Demo")
-                .setDescription("Something useful. No, really.")
-                .setDestinationInExternalPublicDir("/AnhsirkDasarpFiles", "fileName.jpg");
-
-        mgr.enqueue(request);
-
     }
 
     @Override
@@ -336,7 +355,7 @@ public class MainActivity extends ActionBarActivity {
    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+       getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -394,13 +413,14 @@ public class MainActivity extends ActionBarActivity {
      *         registration ID.
      */
     private String getRegistrationId(Context context) {
+
         final SharedPreferences prefs = getGcmPreferences(context);
         String registrationId = prefs.getString(PROPERTY_REG_ID, "");
         if (registrationId.isEmpty()) {
             Log.i(TAG, "Registration not found.");
             return "";
         }
-        // Check if app was updated; if so, it must clear the registration ID
+        // Clheck if app was updated; if so, it must clear the registration ID
         // since the existing regID is not guaranteed to work with the new
         // app version.
         int registeredVersion = prefs.getInt(PROPERTY_APP_VERSION, Integer.MIN_VALUE);
@@ -433,8 +453,6 @@ public class MainActivity extends ActionBarActivity {
 
                     // You should send the registration ID to your server over HTTP, so it
                     // can use GCM/HTTP or CCS to send messages to your app.
-                    sendRegistrationIdToBackend();
-
                     // For this demo: we don't need to send it because the device will send
                     // upstream messages to a server that echo back the message using the
                     // 'from' address in the message.
@@ -452,7 +470,16 @@ public class MainActivity extends ActionBarActivity {
 
             @Override
             protected void onPostExecute(String msg) {
-                //mDisplay.append(msg + "\n");
+                Log.e("Post Execute", msg);
+                //int status = sendRegistrationIdToBackend(); // Register reg on Crowdserver
+                Log.e("Before register Key", "Before reg key #########");
+                postRegId();
+                Log.e("After register Key", "After reg key ********");
+                int status = 200;
+                if(status == 200){
+                    getDataFromServer(); // get data from Server
+                }
+
             }
         }.execute(null, null, null);
     }
@@ -515,15 +542,20 @@ public class MainActivity extends ActionBarActivity {
      * messages to your app. Not needed for this demo since the device sends upstream messages
      * to a server that echoes back the message using the 'from' address in the message.
      */
-    private void sendRegistrationIdToBackend() {
+    private int sendRegistrationIdToBackend() {
         // Your implementation here.
 
         Log.e("Register Id: " , " Background");
         // Create a new HttpClient and Post Header
         HttpClient httpclient = new DefaultHttpClient();
         HttpPost httppost = new HttpPost(BaseUrl+"app_users/register_app_user");
+
         String reg_id = getRegistrationId(getApplicationContext());
+
         Log.e("reg_id backend: " , reg_id);
+
+        int code = -1;
+
         try {
             // Add your data
             List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
@@ -533,7 +565,8 @@ public class MainActivity extends ActionBarActivity {
 
             // Execute HTTP Post Request
             HttpResponse response = httpclient.execute(httppost);
-            Log.e("Response: " , response.toString());
+            code = response.getStatusLine().getStatusCode();
+            Log.e("Response: 1 " , code + "");
 
 
         } catch (ClientProtocolException e) {
@@ -543,6 +576,103 @@ public class MainActivity extends ActionBarActivity {
             // TODO Auto-generated catch block
             Log.e("second error: " , e.toString());
         }
+
+        return code;
     }
+
+    public void registerGcmKeyAsync() { // RETIRE this function
+        new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... params) {
+
+                Log.e("Register Id: " , " Background");
+                // Create a new HttpClient and Post Header
+                HttpClient httpclient = new DefaultHttpClient();
+                HttpPost httppost = new HttpPost(BaseUrl+"app_users/register_app_user");
+
+                String reg_id = getRegistrationId(getApplicationContext());
+
+                Log.e("reg_id backend: " , reg_id);
+
+                int code = -1;
+
+
+                try {
+                    // Add your data
+                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+                    nameValuePairs.add(new BasicNameValuePair("reg_id", reg_id));
+                    nameValuePairs.add(new BasicNameValuePair("android_id", "Test android id"));
+                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+                    // Execute HTTP Post Request
+                    HttpResponse response = httpclient.execute(httppost);
+                    code = response.getStatusLine().getStatusCode();
+                    Log.e("Response: 1 " , code + "");
+
+                    response = null;
+                } catch (ClientProtocolException e) {
+                    // TODO Auto-generated catch block
+                    Log.e("First error: " , e.toString());
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    Log.e("second error: " , e.toString());
+                }finally {
+
+                    httpclient = null;
+                    httppost = null;
+
+                }
+
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+            }
+
+        }.execute(null,null,null);
+    }
+
+    private void postRegId() {
+
+        RequestQueue rq = Volley.newRequestQueue(this);
+
+        StringRequest postReq = new StringRequest(Request.Method.POST, BaseUrl+"app_users/register_app_user", new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+               // tv.setText(response); // We set the response data in the TextView
+                Log.e("Voley response", response);
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                System.out.println("Error ["+error+"]");
+
+            }
+        })  {
+
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+
+                String reg_id = getRegistrationId(getApplicationContext());
+
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("reg_id", reg_id);
+                params.put("param1", "Usman Khan");
+                params.put("android_id", "Test android id");
+                return params;
+            }
+
+        };
+
+        rq.add(postReq);
+
+    }
+
+
 
 }

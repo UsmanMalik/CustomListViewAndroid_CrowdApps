@@ -18,21 +18,30 @@ public class CustomListAdapter extends BaseAdapter {
     private Activity activity;
     private LayoutInflater inflater;
     private List<Movie> movieItems;
+    private List<Category> categoryItems;
     ImageLoader imageLoader = AppController.getInstance().getImageLoader();
 
-    public CustomListAdapter(Activity activity, List<Movie> movieItems) {
+   /* public CustomListAdapter(Activity activity, List<Movie> movieItems) {
         this.activity = activity;
         this.movieItems = movieItems;
+    }*/
+
+    public CustomListAdapter(Activity activity, List<Category> categoryItems) {
+        this.activity = activity;
+        this.categoryItems = categoryItems;
     }
 
     @Override
     public int getCount() {
-        return movieItems.size();
+        //return movieItems.size();
+        return categoryItems.size();
     }
 
     @Override
     public Object getItem(int location) {
-        return movieItems.get(location);
+        //return movieItems.get(location);
+        return categoryItems.get(location);
+
     }
 
     @Override
@@ -61,26 +70,28 @@ public class CustomListAdapter extends BaseAdapter {
         // getting movie data for the row
         Movie m = movieItems.get(position);
 
+        Category c = categoryItems.get(position);
         // thumbnail image
-        thumbNail.setImageUrl(m.getThumbnailUrl(), imageLoader);
+        thumbNail.setImageUrl(c.getImage_path(), imageLoader);
 
         // title
-        title.setText(m.getTitle());
+        title.setText(c.getTitle());
 
         // rating
-        rating.setText("Rating: " + String.valueOf(m.getRating()));
+        rating.setText("Rating: " + String.valueOf(c.getDescription()));
 
         // genre
-        String genreStr = "";
+        /*String genreStr = "";
         for (String str : m.getGenre()) {
             genreStr += str + ", ";
         }
         genreStr = genreStr.length() > 0 ? genreStr.substring(0,
                 genreStr.length() - 2) : genreStr;
         genre.setText(genreStr);
-
+        */
+        genre.setText(c.getTitle());
         // release year
-        year.setText(String.valueOf(m.getYear()));
+        //year.setText(String.valueOf(m.getYear()));
 
         return convertView;
     }

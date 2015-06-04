@@ -1,13 +1,25 @@
 package com.usman.gcm.crowdapps;
 
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by usman on 5/20/15.
@@ -16,10 +28,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     // All Static variables
     // Database Version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     // Database Name
-    private static final String DATABASE_NAME = "Crowd1";
+    private static final String DATABASE_NAME = "Crowd10";
 
     // Contacts table name
     private static final String TABLE_CONTACTS = "contacts";
@@ -156,6 +168,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         Movie contact = new Movie(Integer.parseInt(cursor.getString(0)),
                 cursor.getString(1), cursor.getString(2));
+        cursor.close();
         // return contact
         return contact;
     }
@@ -179,6 +192,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 contactList.add(contact);
             } while (cursor.moveToNext());
             cursor.close(); // Cursor was not closed earlier
+        }else{
+            cursor.close();
         }
 
         // return contact list
@@ -207,6 +222,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 categoryList.add(category);
             } while (cursor.moveToNext());
             cursor.close(); // Cursor was not closed earlier
+        }else {
+            cursor.close();
         }
 
         // return contact list
@@ -236,6 +253,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 boxList.add(box);
             } while (cursor.moveToNext());
             cursor.close(); // Cursor was not closed earlier
+        }else{
+            cursor.close();
         }
 
         // return boxes list
