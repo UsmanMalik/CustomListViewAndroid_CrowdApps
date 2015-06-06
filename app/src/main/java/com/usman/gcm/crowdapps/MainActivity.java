@@ -71,7 +71,7 @@ public class MainActivity extends ActionBarActivity {
     // Log tag
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private static final String BaseUrl = "http://192.168.1.5:3000/";
+    private static final String BaseUrl = "http://192.168.1.3:3000/";
     private static final String url = BaseUrl+"api/category/complete_data";
     private ProgressDialog pDialog;
     private List<Movie> movieList = new ArrayList<Movie>(); // REMOVE
@@ -116,6 +116,23 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        pDialog = new ProgressDialog(this);
+        // Showing progress dialog before making http request
+        pDialog.setMessage("Loading...");
+        pDialog.show();
+
+        // Create folder
+
+        File direct = new File(Environment.getExternalStorageDirectory()
+                + "/CrowdApps");
+
+        if (!direct.exists()) {
+            direct.mkdirs();
+        }
+
+
+
         // Register GCM
 
         context = getApplicationContext();
@@ -142,8 +159,16 @@ public class MainActivity extends ActionBarActivity {
             Log.e("Count Zero","Fetch data from server");
 
             getDataFromServer();
+            pDialog.dismiss(); // LOCATE its position
         }else{
             categoryList = db.getAllCategories();
+            Log.e("Count IS NOT Zero","Get DB");
+            for (Category cn : categoryList) {
+                String log = " Title: " + cn.getTitle() + " ,Phone: " + cn.getImage_path();
+                // Writing Contacts to log
+                Log.d("Name: ", log);
+                pDialog.dismiss();
+            }
 
         }
 
@@ -206,26 +231,48 @@ public class MainActivity extends ActionBarActivity {
         adapter = new CustomListAdapter(this, categoryList);
         listView.setAdapter(adapter);
 
-        pDialog = new ProgressDialog(this);
-        // Showing progress dialog before making http request
-        pDialog.setMessage("Loading...");
-        pDialog.show();
+
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                Movie getMovie = movieList.get(position);
-                Toast.makeText(getApplicationContext(), "Hi: " + getMovie.getTitle(), Toast.LENGTH_LONG).show();
+                Category getCategory = categoryList.get(position);
+                Toast.makeText(getApplicationContext(), "Hi: " + getCategory.getTitle(), Toast.LENGTH_LONG).show();
+
+                Intent i = new Intent(MainActivity.this, ViewGallery.class);
+                i.putExtra("classFrom", MainActivity.class.toString());
+                i.putExtra("id", getCategory.getId());
+                startActivity(i);
             }
         });
 
 
     }
 
-    public void downloadFile(String uRl) {
-        File direct = new File(Environment.getExternalStorageDirectory()
-                + "/AnhsirkDasarp");
+    public void downloadFile(String uRl, String category) {
+
+        File direct;
+        String path ="";
+
+        if(category.isEmpty()){
+
+            path = File.separator+"CrowdApps";
+            direct = new File(Environment.getExternalStorageDirectory()
+                    + path);
+
+            Log.e("Category is Empty","Empty");
+
+        }else{
+            path = File.separator+"CrowdApps"+File.separator + category;
+            direct = new File(Environment.getExternalStorageDirectory()
+                    + path);
+
+            Log.e("Category is There",path);
+
+        }
+
+
 
         if (!direct.exists()) {
             direct.mkdirs();
@@ -242,7 +289,7 @@ public class MainActivity extends ActionBarActivity {
                         | DownloadManager.Request.NETWORK_MOBILE)
                 .setAllowedOverRoaming(false).setTitle("Demo")
                 .setDescription("Something useful. No, really.")
-                .setDestinationInExternalPublicDir("/AnhsirkDasarpFiles", "fileName.jpg");
+                .setDestinationInExternalPublicDir(path, "fileName.jpg");
 
         mgr.enqueue(request);
 
@@ -268,9 +315,10 @@ public class MainActivity extends ActionBarActivity {
                                 c.setTitle(obj.getString("title"));
                                 c.setDescription(obj.getString("description"));
                                 c.setImage_path(BaseUrl + obj.getString("avatar_url_thumb"));
-                                //  downloadFile(c.getImage_path());
+                                downloadFile(c.getImage_path(), "");
 
                                 db.addCategory(c);
+                                categoryList.add(c);
 
                                 Log.e("image path",c.getImage_path());
 
@@ -299,7 +347,7 @@ public class MainActivity extends ActionBarActivity {
                                         b.setTitle(objBox.getString("title"));
                                         b.setDescription(objBox.getString("description"));
                                         b.setImage_path(BaseUrl + objBox.getString("avatar_url_medium"));
-                                        //    downloadFile(b.getImage_path());
+                                     //   downloadFile(b.getImage_path(),c.getTitle());
 
                                         db.addBox(b);
 

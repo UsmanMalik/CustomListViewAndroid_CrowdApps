@@ -28,10 +28,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     // All Static variables
     // Database Version
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 10;
 
     // Database Name
-    private static final String DATABASE_NAME = "Crowd10";
+    private static final String DATABASE_NAME = "Crowd18";
 
     // Contacts table name
     private static final String TABLE_CONTACTS = "contacts";
@@ -74,6 +74,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
+
         String CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABLE_CONTACTS + "("
                 + KEY_ID + " INTEGER PRIMARY KEY," + TITLE + " TEXT,"
                 + IMAGE + " TEXT" + ")";
@@ -81,13 +82,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
 
         String CREATE_BOX_TABLE = "CREATE TABLE " + TABLE_BOX + "("
-                + BOX_KEY_ID + " INTEGER PRIMARY KEY," + BOX_CATEGORY_ID + " INTEGER,"
+                + BOX_KEY_ID + " INTEGER," + BOX_CATEGORY_ID + " INTEGER,"
                 + BOX_TITLE + " TEXT," + BOX_DESCRIPTION + " TEXT,"
                 + BOX_IMAGE + " TEXT" + ")";
         db.execSQL(CREATE_BOX_TABLE);
 
         String CREATE_CATEGORY_TABLE = "CREATE TABLE " + TABLE_CATEGORY + "("
-                + CATEGORY_KEY_ID + " INTEGER PRIMARY KEY,"
+                + CATEGORY_KEY_ID + " INTEGER,"
                 + CATEGORY_TITLE + " TEXT," + CATEGORY_DESCRIPTION + " TEXT,"
                 + CATEGORY_IMAGE + " TEXT" + ")";
         db.execSQL(CREATE_CATEGORY_TABLE);
