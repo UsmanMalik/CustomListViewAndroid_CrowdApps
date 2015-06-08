@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -82,13 +83,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
 
         String CREATE_BOX_TABLE = "CREATE TABLE " + TABLE_BOX + "("
-                + BOX_KEY_ID + " INTEGER," + BOX_CATEGORY_ID + " INTEGER,"
+                + BOX_KEY_ID + " INTEGER PRIMARY KEY," + BOX_CATEGORY_ID + " INTEGER,"
                 + BOX_TITLE + " TEXT," + BOX_DESCRIPTION + " TEXT,"
                 + BOX_IMAGE + " TEXT" + ")";
         db.execSQL(CREATE_BOX_TABLE);
 
         String CREATE_CATEGORY_TABLE = "CREATE TABLE " + TABLE_CATEGORY + "("
-                + CATEGORY_KEY_ID + " INTEGER,"
+                + CATEGORY_KEY_ID + " INTEGER PRIMARY KEY,"
                 + CATEGORY_TITLE + " TEXT," + CATEGORY_DESCRIPTION + " TEXT,"
                 + CATEGORY_IMAGE + " TEXT" + ")";
         db.execSQL(CREATE_CATEGORY_TABLE);
@@ -126,21 +127,61 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public void addCategory(Category category) {
-        SQLiteDatabase db = this.getWritableDatabase();
 
-        ContentValues values = new ContentValues();
+        if(isCategoryAlreadyExists(category.getId()) == false) {
+            SQLiteDatabase db = this.getWritableDatabase();
 
-        values.put(CATEGORY_KEY_ID, category.getId());
-        values.put(CATEGORY_TITLE, category.getTitle());
-        values.put(CATEGORY_DESCRIPTION, category.getDescription());
-        values.put(CATEGORY_IMAGE, category.getImage_path());
+            ContentValues values = new ContentValues();
 
-        // Inserting Row
-        db.insert(TABLE_CATEGORY, null, values);
-        db.close(); // Closing database connection
+            values.put(CATEGORY_KEY_ID, category.getId());
+            values.put(CATEGORY_TITLE, category.getTitle());
+            values.put(CATEGORY_DESCRIPTION, category.getDescription());
+            values.put(CATEGORY_IMAGE, category.getImage_path());
+
+            // Inserting Row
+            db.insert(TABLE_CATEGORY, null, values);
+            db.close(); // Closing database connection
+        }else{
+            Log.e("Already exist category", category.getId()+"");
+        }
+    }
+
+    public Boolean isCategoryAlreadyExists(Integer id){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_CATEGORY, new String[] { CATEGORY_KEY_ID, CATEGORY_TITLE,
+                        CATEGORY_DESCRIPTION,CATEGORY_IMAGE}, CATEGORY_KEY_ID + "=?",
+                new String[] { String.valueOf(id) }, null, null, null, null);
+
+        if(cursor.moveToFirst()) {
+            cursor.close();
+            return true; //row exists
+        }else{
+            cursor.close();
+            return false;
+        }
+    }
+
+    public Boolean isBoxAlreadyExists(Integer id){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_BOX, new String[] { BOX_KEY_ID, BOX_CATEGORY_ID,
+                        BOX_TITLE,BOX_DESCRIPTION,BOX_IMAGE }, BOX_CATEGORY_ID + "=?",
+                new String[] { String.valueOf(id) }, null, null, null, null);
+
+        if(cursor.moveToFirst()) {
+            cursor.close();
+            return true; //row exists
+        }else{
+            cursor.close();
+            return false;
+        }
     }
 
     public void addBox(Box box) {
+
+        if(isBoxAlreadyExists(box.getId()) == false) {
+
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -154,6 +195,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // Inserting Row
         db.insert(TABLE_BOX, null, values);
         db.close(); // Closing database connection
+        }else{
+            Log.e("Already exist box", box.getId() + "");
+        }
     }
 
 
@@ -172,6 +216,37 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.close();
         // return contact
         return contact;
+    }
+
+    // Getting single contact
+    public List<Box> getCategoryBoxes(int id) {
+        List<Box> boxList = new ArrayList<Box>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_BOX, new String[] { BOX_KEY_ID, BOX_CATEGORY_ID,
+                        BOX_TITLE,BOX_DESCRIPTION,BOX_IMAGE }, BOX_CATEGORY_ID + "=?",
+                new String[] { String.valueOf(id) }, null, null, null, null);
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+
+                Box box = new Box(Integer.parseInt(cursor.getString(0)),
+                        Integer.parseInt(cursor.getString(1)), cursor.getString(2),cursor.getString(3),cursor.getString(4));
+
+
+                boxList.add(box);
+            } while (cursor.moveToNext());
+            cursor.close(); // Cursor was not closed earlier
+        }else{
+            cursor.close();
+        }
+
+
+
+
+        // return contact
+        return boxList;
     }
 
     // Getting All Contacts

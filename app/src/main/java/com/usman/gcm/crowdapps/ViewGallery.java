@@ -14,8 +14,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ViewGallery extends Activity {
 
@@ -24,7 +27,10 @@ public class ViewGallery extends Activity {
     private String[] FilePathStrings;
     private String[] FileNameStrings;
     private File[] listFile;
+    private List<Box> boxList = new ArrayList<Box>();
+
     File file;
+    final DatabaseHandler db = new DatabaseHandler(this);
 
 
     int[] mResources = {
@@ -39,8 +45,38 @@ public class ViewGallery extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.slideshow_main);
 
+
+        Integer catId;
+        String title;
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            if(extras == null) {
+                catId= null;
+                title = null;
+            } else {
+                catId= extras.getInt("id");
+                title = extras.getString("title");
+            }
+        } else {
+            catId= (Integer) savedInstanceState.getSerializable("id");
+            title= (String) savedInstanceState.getSerializable("title");
+        }
+        Toast.makeText(this,"Cat id: "+catId + " Title: " + title,Toast.LENGTH_SHORT  ).show();
+
+        boxList = db.getCategoryBoxes(catId);
+        Log.e("Boxlist size", boxList.size() + "");
+
+        for (Box cn : boxList) {
+            String log = " ** ** Title: " + cn.getTitle() + " ,List : " + cn.getDescription();
+            // Writing Contacts to log
+            Log.d("Name: ", log);
+        }
+
+
+
+
         file = new File(Environment.getExternalStorageDirectory()
-                + File.separator + "AnhsirkDasarpFiles");
+                + File.separator + "CrowdApps"+ File.separator+title);
         if (file.exists() && file.isDirectory()) {
             Toast.makeText(this, "File exists !!! and is a dir", Toast.LENGTH_LONG)
                     .show();
@@ -117,9 +153,13 @@ public class ViewGallery extends Activity {
             View itemView = mLayoutInflater.inflate(R.layout.image_item, container, false);
             Log.e("Position: ", position+"");
             ImageView imageView = (ImageView) itemView.findViewById(R.id.imageView);
-
+            TextView titleView = (TextView) itemView.findViewById(R.id.boxTitle);
+            TextView descriptionView = (TextView) itemView.findViewById(R.id.description);
            Bitmap bitmap = BitmapFactory.decodeFile(FilePathStrings[position]);
             imageView.setImageBitmap(bitmap);
+
+            titleView.setText(boxList.get(position).getTitle());
+            descriptionView.setText(boxList.get(position).getDescription());
 /*
 *
 * /storage/sdcard0/AnhsirkDasarpFiles/fileName-23.jpg

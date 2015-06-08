@@ -71,12 +71,11 @@ public class MainActivity extends ActionBarActivity {
     // Log tag
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private static final String BaseUrl = "http://192.168.1.3:3000/";
+    private static final String BaseUrl = "http://192.168.7.129:3000/";
     private static final String url = BaseUrl+"api/category/complete_data";
     private ProgressDialog pDialog;
     private List<Movie> movieList = new ArrayList<Movie>(); // REMOVE
     private List<Category> categoryList = new ArrayList<Category>();
-    private List<Box> boxList = new ArrayList<Box>();
     private ListView listView;
     private CustomListAdapter adapter;
     //private Bitmap bm;
@@ -131,7 +130,7 @@ public class MainActivity extends ActionBarActivity {
             direct.mkdirs();
         }
 
-
+        getDataFromServer(); // TEST
 
         // Register GCM
 
@@ -243,6 +242,7 @@ public class MainActivity extends ActionBarActivity {
                 Intent i = new Intent(MainActivity.this, ViewGallery.class);
                 i.putExtra("classFrom", MainActivity.class.toString());
                 i.putExtra("id", getCategory.getId());
+                i.putExtra("title", getCategory.getTitle());
                 startActivity(i);
             }
         });
@@ -254,6 +254,7 @@ public class MainActivity extends ActionBarActivity {
 
         File direct;
         String path ="";
+        Log.e("Category downlaod: ", category);
 
         if(category.isEmpty()){
 
@@ -347,7 +348,7 @@ public class MainActivity extends ActionBarActivity {
                                         b.setTitle(objBox.getString("title"));
                                         b.setDescription(objBox.getString("description"));
                                         b.setImage_path(BaseUrl + objBox.getString("avatar_url_medium"));
-                                     //   downloadFile(b.getImage_path(),c.getTitle());
+                                        downloadFile(b.getImage_path(),c.getTitle());
 
                                         db.addBox(b);
 
