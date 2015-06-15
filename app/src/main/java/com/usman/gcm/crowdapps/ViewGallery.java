@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
@@ -63,7 +64,7 @@ public class ViewGallery extends Activity {
         }
         Toast.makeText(this,"Cat id: "+catId + " Title: " + title,Toast.LENGTH_SHORT  ).show();
 
-        boxList = db.getCategoryBoxes(catId);
+        boxList = db.getCategoryBoxes(catId); // Handle if null
         Log.e("Boxlist size", boxList.size() + "");
 
         for (Box cn : boxList) {
@@ -78,7 +79,7 @@ public class ViewGallery extends Activity {
         file = new File(Environment.getExternalStorageDirectory()
                 + File.separator + "CrowdApps"+ File.separator+title);
         if (file.exists() && file.isDirectory()) {
-            Toast.makeText(this, "File exists !!! and is a dir", Toast.LENGTH_LONG)
+            Toast.makeText(this, "File exists! " + file.getAbsolutePath(), Toast.LENGTH_SHORT)
                     .show();
         }
 
@@ -100,19 +101,22 @@ public class ViewGallery extends Activity {
 */
         if (file.isDirectory()) {
             listFile = file.listFiles();
+            String filePath =  file.getAbsolutePath()+File.separator;
+
             // Create a String array for FilePathStrings
             FilePathStrings = new String[listFile.length];
             // Create a String array for FileNameStrings
             FileNameStrings = new String[listFile.length];
-
-            for (int i = 0; i < listFile.length; i++) {
+            Log.e("boxlist size: ", boxList.size()+"");
+            for (int i = 0; i < boxList.size(); i++) {
                 // Get the path of the image file
-                FilePathStrings[i] = listFile[i].getAbsolutePath();
+                FilePathStrings[i] = filePath+boxList.get(i).getId()+ ""+".jpg";
                 Toast.makeText(this, FilePathStrings[i].toString(), Toast.LENGTH_SHORT)
-                        .show();                // Get the name image file
-
+                       .show();                // Get the name image file
+                Log.e(" Absolute Path: ", listFile[i].getAbsolutePath().toString());
                 Log.e("Iamge Path: ", FilePathStrings[i].toString());
-                FileNameStrings[i] = listFile[i].getName();
+
+                FileNameStrings[i] = boxList.get(i).getId()+ ""+".jpg";
             }
         }
 
@@ -145,17 +149,23 @@ public class ViewGallery extends Activity {
 
         @Override
         public boolean isViewFromObject(View view, Object object) {
-            return view == ((LinearLayout) object);
+            return view == ((RelativeLayout) object);
         }
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             View itemView = mLayoutInflater.inflate(R.layout.image_item, container, false);
-            Log.e("Position: ", position+"");
+            Log.e("Position: ", position + " "+ FilePathStrings[position] );
             ImageView imageView = (ImageView) itemView.findViewById(R.id.imageView);
             TextView titleView = (TextView) itemView.findViewById(R.id.boxTitle);
             TextView descriptionView = (TextView) itemView.findViewById(R.id.description);
-           Bitmap bitmap = BitmapFactory.decodeFile(FilePathStrings[position]);
+
+            //File imgFile = new  File("/storage/sdcard0/CrowdApps/Android/1.jpg");
+            //Log.e("Image File Path: ", imgFile.getAbsolutePath());
+
+            Bitmap bitmap = BitmapFactory.decodeFile(FilePathStrings[position]);
+            Log.e("bitmap ++" ,bitmap.getHeight()+"");
+
             imageView.setImageBitmap(bitmap);
 
             titleView.setText(boxList.get(position).getTitle());
@@ -174,7 +184,7 @@ public class ViewGallery extends Activity {
 
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
-            container.removeView((LinearLayout) object);
+            container.removeView((RelativeLayout) object);
         }
     }
 

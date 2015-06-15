@@ -72,7 +72,9 @@
             </intent-filter>
         </receiver>
         <service android:name=".GcmIntentService" />
-
+        <!-- Declaring Service in Manifest -->
+        <service
+            android:name=".FetchDataTrigger" />
     </application>
 
 </manifest>

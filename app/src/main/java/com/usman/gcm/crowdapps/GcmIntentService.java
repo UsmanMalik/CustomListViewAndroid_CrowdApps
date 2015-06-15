@@ -15,6 +15,9 @@ import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * This {@code IntentService} does the actual handling of the GCM message.
  * {@code GcmBroadcastReceiver} (a {@code WakefulBroadcastReceiver}) holds a
@@ -23,6 +26,7 @@ import android.util.Log;
  * wake lock.
  */
 public class GcmIntentService extends IntentService {
+
     public static final int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;
     NotificationCompat.Builder builder;
@@ -47,9 +51,9 @@ public class GcmIntentService extends IntentService {
              * not interested in, or that you don't recognize.
              */
             if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
-                sendNotification("Send error: " + extras.toString());
+                sendNotification("Send error: " + extras.toString(), extras);
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
-                sendNotification("Deleted messages on server: " + extras.toString());
+                sendNotification("Deleted messages on server: " + extras.toString(), extras);
                 // If it's a regular GCM message, do some work.
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
                 // This loop represents the service doing some work.
@@ -63,7 +67,7 @@ public class GcmIntentService extends IntentService {
                 }
                 Log.i(TAG, "Completed work @ " + SystemClock.elapsedRealtime());
                 // Post notification of received message.
-                sendNotification("Received: " + extras.toString());
+                sendNotification("Received: " + extras.toString(), extras);
                 Log.i(TAG, "Received: " + extras.toString());
             }
         }
@@ -74,9 +78,24 @@ public class GcmIntentService extends IntentService {
     // Put the message into a notification and post it.
     // This is just one simple example of what you might choose to do with
     // a GCM message.
-    private void sendNotification(String msg) {
+    private void sendNotification(String msg, Bundle b) {
         mNotificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        Log.e("Message bundle + ", msg +" url: "+ b.getString("url"));
+
+
+        Intent msgIntent = new Intent(this, FetchDataTrigger.class);
+        msgIntent.putExtra(FetchDataTrigger.url, b.getString("url") );
+        msgIntent.putExtra(FetchDataTrigger.description, b.getString("description") );
+        startService(msgIntent);
+
+       // Intent myintent = new Intent(this, getClass());
+        //myintent.putExtra("message", msg);
+
+       // String id= myintent.getExtras().getString("url");
+
+        //Log.e("Id Intent: ", id);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, MainActivity.class), 0);

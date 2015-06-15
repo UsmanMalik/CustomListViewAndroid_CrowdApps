@@ -5,6 +5,7 @@ package com.usman.gcm.crowdapps;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -24,7 +25,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -32,15 +32,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -71,7 +66,7 @@ public class MainActivity extends ActionBarActivity {
     // Log tag
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private static final String BaseUrl = "http://192.168.7.129:3000/";
+    private static final String BaseUrl = "http://192.168.1.4:3000/";
     private static final String url = BaseUrl+"api/category/complete_data";
     private ProgressDialog pDialog;
     private List<Movie> movieList = new ArrayList<Movie>(); // REMOVE
@@ -130,8 +125,6 @@ public class MainActivity extends ActionBarActivity {
             direct.mkdirs();
         }
 
-        getDataFromServer(); // TEST
-
         // Register GCM
 
         context = getApplicationContext();
@@ -153,7 +146,10 @@ public class MainActivity extends ActionBarActivity {
         }
 
         int countCategory = db.getCategoryCount();
+
+
         Log.e("count category: ",countCategory +"");
+
         if(countCategory == 0){
             Log.e("Count Zero","Fetch data from server");
 
@@ -170,12 +166,6 @@ public class MainActivity extends ActionBarActivity {
             }
 
         }
-
-        //  Intent i = new Intent(MainActivity.this, ViewGallery.class);
-      //  i.putExtra("classFrom", MainActivity.class.toString());
-      // startActivity(i);
-
-
 
 
         /**
@@ -202,25 +192,11 @@ public class MainActivity extends ActionBarActivity {
         int countBox = db.getBoxesCount();
         Log.e("countBox: ", countBox+"");
 
-
-        for (Movie cn : contacts) {
-            String log = " Title: " + cn.getTitle() + " ,Phone: " + cn.getThumbnailUrl();
-            // Writing Contacts to log
-            Log.d("Name: ", log);
-        }
-
         for (Box cn : boxes) {
             String log = " Title: " + cn.getTitle() + " ,Des: " + cn.getDescription();
             // Writing Contacts to log
             Log.d("Name: ", log);
         }
-
-        //////////////////////////////////////////////////////
-        // Saving image from server
-
-        final BitmapFactory.Options bmOptions;
-        bmOptions = new BitmapFactory.Options();
-        bmOptions.inSampleSize = 1;
 
 */
 
@@ -250,11 +226,11 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-    public void downloadFile(String uRl, String category) {
+    public void downloadFile(String uRl, String category, String filename) {
 
         File direct;
         String path ="";
-        Log.e("Category downlaod: ", category);
+        Log.e("Category downlaod: ", category +"  " +filename);
 
         if(category.isEmpty()){
 
@@ -290,7 +266,7 @@ public class MainActivity extends ActionBarActivity {
                         | DownloadManager.Request.NETWORK_MOBILE)
                 .setAllowedOverRoaming(false).setTitle("Demo")
                 .setDescription("Something useful. No, really.")
-                .setDestinationInExternalPublicDir(path, "fileName.jpg");
+                .setDestinationInExternalPublicDir(path, filename+".jpg");
 
         mgr.enqueue(request);
 
@@ -315,8 +291,13 @@ public class MainActivity extends ActionBarActivity {
                                 c.setId(obj.getInt("id"));
                                 c.setTitle(obj.getString("title"));
                                 c.setDescription(obj.getString("description"));
-                                c.setImage_path(BaseUrl + obj.getString("avatar_url_thumb"));
-                                downloadFile(c.getImage_path(), "");
+                                c.setImage_path( BaseUrl + obj.getString("avatar_url_thumb"));
+                                if (db.isCategoryAlreadyExists(obj.getInt("id")) == false){
+                                    Log.e("Going to download ", obj.getString("title"));
+                                    downloadFile(c.getImage_path(), "", obj.getInt("id")+ "");
+                                }else{
+                                    Log.e("Catcannot download", obj.getString("title"));
+                                }
 
                                 db.addCategory(c);
                                 categoryList.add(c);
@@ -348,8 +329,11 @@ public class MainActivity extends ActionBarActivity {
                                         b.setTitle(objBox.getString("title"));
                                         b.setDescription(objBox.getString("description"));
                                         b.setImage_path(BaseUrl + objBox.getString("avatar_url_medium"));
-                                        downloadFile(b.getImage_path(),c.getTitle());
-
+                                        if(db.isBoxAlreadyExists(objBox.getInt("id")) == false) {
+                                            downloadFile(b.getImage_path(), c.getTitle(), objBox.getInt("id")+"");
+                                        }else{
+                                            Log.e("Box img exist", objBox.getString("title"));
+                                        }
                                         db.addBox(b);
 
                                         Log.e("Box title", b.getTitle());
@@ -524,10 +508,10 @@ public class MainActivity extends ActionBarActivity {
                 Log.e("Before register Key", "Before reg key #########");
                 postRegId();
                 Log.e("After register Key", "After reg key ********");
-                int status = 200;
-                if(status == 200){
-                    getDataFromServer(); // get data from Server
-                }
+                //int status = 200;
+                //if(status == 200){
+                //    getDataFromServer(); // get data from Server
+                //}
 
             }
         }.execute(null, null, null);

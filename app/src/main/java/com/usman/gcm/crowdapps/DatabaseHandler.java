@@ -29,10 +29,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     // All Static variables
     // Database Version
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 11;
 
     // Database Name
-    private static final String DATABASE_NAME = "Crowd18";
+    private static final String DATABASE_NAME = "Crowd19";
 
     // Contacts table name
     private static final String TABLE_CONTACTS = "contacts";
