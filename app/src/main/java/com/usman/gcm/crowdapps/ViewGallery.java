@@ -2,6 +2,7 @@ package com.usman.gcm.crowdapps;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -66,6 +67,15 @@ public class ViewGallery extends Activity {
 
         boxList = db.getCategoryBoxes(catId); // Handle if null
         Log.e("Boxlist size", boxList.size() + "");
+
+        if(boxList.size() == 0){
+
+            Toast.makeText(this,"No Box found", Toast.LENGTH_SHORT).show();
+
+            Intent i = new Intent(this,MainActivity.class);
+            startActivity(i);
+
+        }
 
         for (Box cn : boxList) {
             String log = " ** ** Title: " + cn.getTitle() + " ,List : " + cn.getDescription();
@@ -141,10 +151,11 @@ public class ViewGallery extends Activity {
 
         @Override
         public int getCount() {
-           int length = FilePathStrings.length;
+           //int length = FilePathStrings.length;
             //return mResources.length;
+           // Log.e("Length getCount: ", length + "");
 
-            return length;
+            return  boxList.size();
         }
 
         @Override

@@ -30,7 +30,7 @@ import java.util.ArrayList;
 public class FetchDataTrigger extends IntentService {
     public static final String url = "imsg";
     public static final String description = "omsg";
-    private static final String BaseUrl = "http://192.168.1.4:3000/";
+    private static final String BaseUrl = "http://192.168.1.17:3000/";
     final DatabaseHandler db = new DatabaseHandler(this);
 
 
@@ -65,7 +65,7 @@ public class FetchDataTrigger extends IntentService {
             public void onResponse(JSONObject response) {
                 // TODO Auto-generated method stub
                 Log.e("JsonObj Response", response.toString());
-
+                String title;
                 // Parsing json
                     try {
 
@@ -73,6 +73,8 @@ public class FetchDataTrigger extends IntentService {
                         Category c = new Category();
                         c.setId(response.getInt("id"));
                         c.setTitle(response.getString("title"));
+                        title = response.getString("title");
+                        Log.e("Titlee", title);
                         c.setDescription(response.getString("description"));
                         c.setImage_path( BaseUrl + response.getString("avatar_url_thumb"));
                         if (db.isCategoryAlreadyExists(response.getInt("id")) == false){
@@ -87,16 +89,11 @@ public class FetchDataTrigger extends IntentService {
 
                         Log.e("image path",c.getImage_path());
 
-                        //Movie movie = new Movie();
-                        //movie.setTitle(obj.getString("title"));
-                        //movie.setThumbnailUrl(obj.getString("image"));
-                        //downloadFile(obj.getString("image"));
-                        //movie.setRating(((Number) obj.get("rating"))
-                        //        .doubleValue());
-                        //movie.setYear(obj.getInt("releaseYear"));
-
                         // Genre is json array
                         JSONArray boxesArray = response.getJSONArray("boxes");
+                        JSONObject id = (JSONObject)boxesArray.get(0);
+
+                        Log.e("boxes Length: ", ""+boxesArray.length());
 
                         ArrayList<String> genre = new ArrayList<String>();
 
@@ -113,7 +110,8 @@ public class FetchDataTrigger extends IntentService {
                                 b.setDescription(objBox.getString("description"));
                                 b.setImage_path(BaseUrl + objBox.getString("avatar_url_medium"));
                                 if(db.isBoxAlreadyExists(objBox.getInt("id")) == false) {
-                                    downloadFile(b.getImage_path(), c.getTitle(), objBox.getInt("id")+"");
+                                    Log.e("Title folder", title);
+                                    downloadFile(b.getImage_path(), title, objBox.getInt("id") + "");
                                 }else{
                                     Log.e("Box img exist", objBox.getString("title"));
                                 }
@@ -121,6 +119,7 @@ public class FetchDataTrigger extends IntentService {
 
                                 Log.e("Box title", b.getTitle());
                             } catch (JSONException e) {
+                                Log.e("Error try ", e.toString());
                                 e.printStackTrace();
                             }
 
@@ -155,102 +154,7 @@ public class FetchDataTrigger extends IntentService {
         queue.add(jsObjRequest);
 
 
-/*
-        // Creating volley request obj
-        JsonArrayRequest movieReq = new JsonArrayRequest(url,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        Log.d("new", response.toString());
 
-                        // Parsing json
-                        for (int i = 0; i < response.length(); i++) {
-                            try {
-
-                                JSONObject obj = response.getJSONObject(i);
-                                Category c = new Category();
-                                c.setId(obj.getInt("id"));
-                                c.setTitle(obj.getString("title"));
-                                c.setDescription(obj.getString("description"));
-                                c.setImage_path( BaseUrl + obj.getString("avatar_url_thumb"));
-                                if (db.isCategoryAlreadyExists(obj.getInt("id")) == false){
-                                    Log.e("Going to download ", obj.getString("title"));
-                                    downloadFile(c.getImage_path(), "", obj.getInt("id")+ "");
-                                }else{
-                                    Log.e("Catcannot download", obj.getString("title"));
-                                }
-
-                                db.addCategory(c);
-                                //categoryList.add(c);
-
-                                Log.e("image path",c.getImage_path());
-
-                                //Movie movie = new Movie();
-                                //movie.setTitle(obj.getString("title"));
-                                //movie.setThumbnailUrl(obj.getString("image"));
-                                //downloadFile(obj.getString("image"));
-                                //movie.setRating(((Number) obj.get("rating"))
-                                //        .doubleValue());
-                                //movie.setYear(obj.getInt("releaseYear"));
-
-                                // Genre is json array
-                                JSONArray boxesArray = obj.getJSONArray("boxes");
-
-                                ArrayList<String> genre = new ArrayList<String>();
-
-                                for (int j = 0; j < boxesArray.length(); j++) {
-
-                                    try {
-                                        JSONObject objBox = boxesArray.getJSONObject(j);
-
-                                        Box b = new Box();
-
-                                        b.setId(objBox.getInt("id"));
-                                        b.setCategory_id(objBox.getInt("category_id"));
-                                        b.setTitle(objBox.getString("title"));
-                                        b.setDescription(objBox.getString("description"));
-                                        b.setImage_path(BaseUrl + objBox.getString("avatar_url_medium"));
-                                        if(db.isBoxAlreadyExists(objBox.getInt("id")) == false) {
-                                            downloadFile(b.getImage_path(), c.getTitle(), objBox.getInt("id")+"");
-                                        }else{
-                                            Log.e("Box img exist", objBox.getString("title"));
-                                        }
-                                        db.addBox(b);
-
-                                        Log.e("Box title", b.getTitle());
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-
-
-                                    //genre.add((String) boxesArray.get(j));
-                                }
-                                //movie.setGenre(genre);
-
-                                // adding movie to movies array
-                                //movieList.add(movie);
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-
-                        // notifying list adapter about data changes
-                        // so that it renders the list view with updated data
-                        //adapter.notifyDataSetChanged();
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                VolleyLog.d(" Voley Error: " + error.getMessage());
-
-
-            }
-        });
-
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(movieReq); */
     }
 
     public void downloadFile(String uRl, String category, String filename) {

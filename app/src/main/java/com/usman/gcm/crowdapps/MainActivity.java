@@ -66,7 +66,7 @@ public class MainActivity extends ActionBarActivity {
     // Log tag
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private static final String BaseUrl = "http://192.168.1.4:3000/";
+    private static final String BaseUrl = "http://192.168.1.17:3000/";
     private static final String url = BaseUrl+"api/category/complete_data";
     private ProgressDialog pDialog;
     private List<Movie> movieList = new ArrayList<Movie>(); // REMOVE
@@ -220,6 +220,7 @@ public class MainActivity extends ActionBarActivity {
                 i.putExtra("id", getCategory.getId());
                 i.putExtra("title", getCategory.getTitle());
                 startActivity(i);
+                finish(); // Call once you redirect to another activity
             }
         });
 
