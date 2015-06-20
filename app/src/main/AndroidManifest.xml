@@ -54,6 +54,8 @@
             android:name=".ViewGallery" >
 
         </activity>
+        <activity android:name=".MaterialList">
+        </activity>
 
         <!--
   WakefulBroadcastReceiver that will receive intents from GCM

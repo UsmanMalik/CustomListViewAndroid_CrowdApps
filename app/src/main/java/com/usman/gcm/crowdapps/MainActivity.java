@@ -55,6 +55,14 @@ import com.android.volley.toolbox.JsonArrayRequest;
 
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.dexafree.materialList.cards.BasicImageButtonsCard;
+import com.dexafree.materialList.cards.BigImageCard;
+import com.dexafree.materialList.cards.SimpleCard;
+import com.dexafree.materialList.controller.OnDismissCallback;
+import com.dexafree.materialList.controller.RecyclerItemClickListener;
+import com.dexafree.materialList.model.Card;
+import com.dexafree.materialList.model.CardItemView;
+import com.dexafree.materialList.view.MaterialListView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -66,7 +74,7 @@ public class MainActivity extends ActionBarActivity {
     // Log tag
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private static final String BaseUrl = "http://192.168.1.17:3000/";
+    private static final String BaseUrl = "http://192.168.1.5:3000/";
     private static final String url = BaseUrl+"api/category/complete_data";
     private ProgressDialog pDialog;
     private List<Movie> movieList = new ArrayList<Movie>(); // REMOVE
@@ -74,6 +82,11 @@ public class MainActivity extends ActionBarActivity {
     private ListView listView;
     private CustomListAdapter adapter;
     //private Bitmap bm;
+
+
+    private Context mContext;
+    private MaterialListView mListView;
+    private SimpleCard card;
 
 
 
@@ -111,6 +124,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
 
+
         pDialog = new ProgressDialog(this);
         // Showing progress dialog before making http request
         pDialog.setMessage("Loading...");
@@ -124,6 +138,59 @@ public class MainActivity extends ActionBarActivity {
         if (!direct.exists()) {
             direct.mkdirs();
         }
+
+
+
+
+/////////////////////////////// material list
+        mContext = this;
+
+        // Bind the MaterialListView to a variable
+        mListView = (MaterialListView) findViewById(R.id.material_listview);
+
+        // Fill the array with mock content
+        //fillArray();
+
+        // Set the dismiss listener
+        mListView.setOnDismissCallback(new OnDismissCallback() {
+            @Override
+            public void onDismiss(Card card, int position) {
+
+                // Recover the tag linked to the Card
+                String tag = card.getTag().toString();
+
+                // Show a toast
+                Toast.makeText(mContext, "You have dismissed a " + tag, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Add the ItemTouchListener
+        mListView.addOnItemTouchListener(new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(CardItemView view, int position) {
+                Log.d("CARD_TYPE", view.getTag().toString() + position);
+
+                Category getCategory = categoryList.get(position);
+                Toast.makeText(getApplicationContext(), "Hi: " + getCategory.getTitle(), Toast.LENGTH_LONG).show();
+
+
+                Intent i = new Intent(MainActivity.this, ViewGallery.class);
+                i.putExtra("classFrom", MainActivity.class.toString());
+                i.putExtra("id", getCategory.getId());
+                i.putExtra("title", getCategory.getTitle());
+                startActivity(i);
+            }
+
+            @Override
+            public void onItemLongClick(CardItemView view, int position) {
+                Log.d("LONG_CLICK", view.getTag().toString());
+            }
+        });
+
+
+
+
+////////////////////////////////////////////////////////////
 
         // Register GCM
 
@@ -162,10 +229,25 @@ public class MainActivity extends ActionBarActivity {
                 String log = " Title: " + cn.getTitle() + " ,Phone: " + cn.getImage_path();
                 // Writing Contacts to log
                 Log.d("Name: ", log);
-                pDialog.dismiss();
+               // pDialog.dismiss();
+
+
+                card = new BigImageCard(this);
+
+                card.setDescription(cn.getDescription());
+                card.setTitle(cn.getTitle());
+                //card.setDrawable(R.drawable.photo);
+                card.setDrawable("http://static1.squarespace.com/static/5522a51be4b034f30e89de22/558069e4e4b02bb1c04a86b4/558069e7e4b0259cc55ff46c/1434479079955/29_Gallaz_Ruby_Rose0002.jpg");
+                card.setTag("BIG_IMAGE_CARD");
+                //((BasicImageButtonsCard) card).setLeftButtonText("LEFT");
+              //  ((BasicImageButtonsCard) card).setRightButtonText("RIGHT");
+                //card.setLeftButtonText("LEFT");
+                //card.setRightButtonText("RIGHT");
+                mListView.add(card);
             }
 
         }
+
 
 
         /**
@@ -202,7 +284,7 @@ public class MainActivity extends ActionBarActivity {
 
         ///////////////////////////////////////////
 
-        listView = (ListView) findViewById(R.id.list);
+        /*listView = (ListView) findViewById(R.id.list);
         adapter = new CustomListAdapter(this, categoryList);
         listView.setAdapter(adapter);
 
@@ -215,6 +297,7 @@ public class MainActivity extends ActionBarActivity {
                 Category getCategory = categoryList.get(position);
                 Toast.makeText(getApplicationContext(), "Hi: " + getCategory.getTitle(), Toast.LENGTH_LONG).show();
 
+
                 Intent i = new Intent(MainActivity.this, ViewGallery.class);
                 i.putExtra("classFrom", MainActivity.class.toString());
                 i.putExtra("id", getCategory.getId());
@@ -222,8 +305,10 @@ public class MainActivity extends ActionBarActivity {
                 startActivity(i);
                 finish(); // Call once you redirect to another activity
             }
-        });
+        }); */
 
+      //  Intent j = new Intent(this, MaterialList.class);
+      //  startActivity(j);
 
     }
 
@@ -358,7 +443,7 @@ public class MainActivity extends ActionBarActivity {
 
                         // notifying list adapter about data changes
                         // so that it renders the list view with updated data
-                        adapter.notifyDataSetChanged();
+                        //adapter.notifyDataSetChanged();
                     }
                 }, new Response.ErrorListener() {
             @Override
