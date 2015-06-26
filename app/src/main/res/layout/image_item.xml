@@ -16,8 +16,12 @@
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
         android:layout_below="@+id/boxTitle"
-        android:layout_centerVertical="true" />
+        android:adjustViewBounds="true"
+        android:scaleType="fitEnd"
+
+        />
 
     <TextView
         android:id="@+id/description"

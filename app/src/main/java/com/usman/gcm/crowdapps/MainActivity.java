@@ -3,10 +3,13 @@ package com.usman.gcm.crowdapps;
 
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -36,6 +39,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -66,7 +70,7 @@ public class MainActivity extends ActionBarActivity {
     // Log tag
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private static final String BaseUrl = "http://192.168.1.17:3000/";
+    private static final String BaseUrl = "http://192.168.1.2:3000/";
     private static final String url = BaseUrl+"api/category/complete_data";
     private ProgressDialog pDialog;
     private List<Movie> movieList = new ArrayList<Movie>(); // REMOVE
@@ -100,6 +104,7 @@ public class MainActivity extends ActionBarActivity {
     Context context;
 
     String regid;
+
     ///// Database test /////
 
     final DatabaseHandler db = new DatabaseHandler(this);
@@ -118,12 +123,14 @@ public class MainActivity extends ActionBarActivity {
 
         // Create folder
 
-        File direct = new File(Environment.getExternalStorageDirectory()
+       /* File direct = new File(Environment.getExternalStorageDirectory()
                 + "/CrowdApps");
 
         if (!direct.exists()) {
             direct.mkdirs();
-        }
+        } */
+
+
 
         // Register GCM
 
@@ -144,6 +151,13 @@ public class MainActivity extends ActionBarActivity {
             Log.i(TAG, "No valid Google Play Services APK found.");
 
         }
+
+        File direct =new File(context.getFilesDir(), "/CrowdApps");
+
+        if (!direct.exists()) {
+            direct.mkdirs();
+        }
+
 
         int countCategory = db.getCategoryCount();
 
@@ -166,41 +180,6 @@ public class MainActivity extends ActionBarActivity {
             }
 
         }
-
-
-        /**
-         * CRUD Operations
-         * */
-        // Inserting Contacts
-     /*   Log.d("Insert: ", "Inserting ..");
-        db.addContact(new Movie(1,"Ravi", "9100000000"));
-        db.addContact(new Movie(2,"Srinivas", "9199999999"));
-        db.addContact(new Movie(3,"Tommy", "9522222222"));
-        db.addContact(new Movie(4,"Karthik", "9533333333"));
-
-        // Reading all contacts
-        Log.d("Reading: ", "Reading all contacts..");
-        List<Movie> contacts = db.getAllContacts();
-        List<Box> boxes = db.getAllBoxes();
-
-        int count = db.getContactsCount();
-        Log.e("Count: ", count+"");
-
-        int countCat = db.getCategoryCount();
-        Log.e("countCat: ", countCat+"");
-
-        int countBox = db.getBoxesCount();
-        Log.e("countBox: ", countBox+"");
-
-        for (Box cn : boxes) {
-            String log = " Title: " + cn.getTitle() + " ,Des: " + cn.getDescription();
-            // Writing Contacts to log
-            Log.d("Name: ", log);
-        }
-
-*/
-
-        ///////////////////////////////////////////
 
         listView = (ListView) findViewById(R.id.list);
         adapter = new CustomListAdapter(this, categoryList);
@@ -227,52 +206,6 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-    public void downloadFile(String uRl, String category, String filename) {
-
-        File direct;
-        String path ="";
-        Log.e("Category downlaod: ", category +"  " +filename);
-
-        if(category.isEmpty()){
-
-            path = File.separator+"CrowdApps";
-            direct = new File(Environment.getExternalStorageDirectory()
-                    + path);
-
-            Log.e("Category is Empty","Empty");
-
-        }else{
-            path = File.separator+"CrowdApps"+File.separator + category;
-            direct = new File(Environment.getExternalStorageDirectory()
-                    + path);
-
-            Log.e("Category is There",path);
-
-        }
-
-
-
-        if (!direct.exists()) {
-            direct.mkdirs();
-        }
-
-        DownloadManager mgr = (DownloadManager) this.getSystemService(Context.DOWNLOAD_SERVICE);
-
-        Uri downloadUri = Uri.parse(uRl);
-        DownloadManager.Request request = new DownloadManager.Request(
-                downloadUri);
-
-        request.setAllowedNetworkTypes(
-                DownloadManager.Request.NETWORK_WIFI
-                        | DownloadManager.Request.NETWORK_MOBILE)
-                .setAllowedOverRoaming(false).setTitle("Demo")
-                .setDescription("Something useful. No, really.")
-                .setDestinationInExternalPublicDir(path, filename+".jpg");
-
-        mgr.enqueue(request);
-
-    }
-
     public void getDataFromServer(){
         Log.e("Get Data from S", " Called");
         // Creating volley request obj
@@ -292,15 +225,16 @@ public class MainActivity extends ActionBarActivity {
                                 c.setId(obj.getInt("id"));
                                 c.setTitle(obj.getString("title"));
                                 c.setDescription(obj.getString("description"));
-                                c.setImage_path( BaseUrl + obj.getString("avatar_url_thumb"));
+                                c.setImage_path(BaseUrl + obj.getString("avatar_url_thumb"));
                                 if (db.isCategoryAlreadyExists(obj.getInt("id")) == false){
                                     Log.e("Going to download ", obj.getString("title"));
-                                    downloadFile(c.getImage_path(), "", obj.getInt("id")+ "");
+                                    downloadFile(c.getImage_path(), "", obj.getInt("id") + "");
+                                    db.addCategory(c);
                                 }else{
                                     Log.e("Catcannot download", obj.getString("title"));
                                 }
 
-                                db.addCategory(c);
+
                                 categoryList.add(c);
 
                                 Log.e("image path",c.getImage_path());
@@ -331,11 +265,12 @@ public class MainActivity extends ActionBarActivity {
                                         b.setDescription(objBox.getString("description"));
                                         b.setImage_path(BaseUrl + objBox.getString("avatar_url_medium"));
                                         if(db.isBoxAlreadyExists(objBox.getInt("id")) == false) {
-                                            downloadFile(b.getImage_path(), c.getTitle(), objBox.getInt("id")+"");
+                                            downloadFile(b.getImage_path(), c.getTitle(), objBox.getInt("id")+"jpg");
+                                            db.addBox(b);
                                         }else{
                                             Log.e("Box img exist", objBox.getString("title"));
                                         }
-                                        db.addBox(b);
+
 
                                         Log.e("Box title", b.getTitle());
                                     } catch (JSONException e) {
@@ -372,6 +307,92 @@ public class MainActivity extends ActionBarActivity {
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(movieReq);
     }
+
+
+    public void downloadFile(String uRl, String category, String filename) {
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+
+        StrictMode.setThreadPolicy(policy);
+
+  /*      File direct;
+        String path ="";
+        Log.e("Category downlaod: ", category +"  " +filename);
+
+        if(category.isEmpty()){
+
+            path = File.separator+"CrowdApps";
+            direct = new File(context.getFilesDir()
+                    + path);
+
+            Log.e("Category is Empty","Empty");
+
+        }else{
+            path = File.separator+"CrowdApps"+File.separator + category;
+            direct = new File(context.getFilesDir()
+                    + path);
+
+            Log.e("Category is There",path);
+
+        }
+
+
+
+        if (!direct.exists()) {
+            direct.mkdirs();
+        }
+
+        DownloadManager mgr = (DownloadManager) this.getSystemService(Context.DOWNLOAD_SERVICE);
+
+        Uri downloadUri = Uri.parse(uRl);
+        DownloadManager.Request request = new DownloadManager.Request(
+                downloadUri);
+
+        request.setAllowedNetworkTypes(
+                DownloadManager.Request.NETWORK_WIFI
+                        | DownloadManager.Request.NETWORK_MOBILE)
+                .setAllowedOverRoaming(false).setTitle("Demo")
+                .setDescription("Something useful. No, really.")
+                .setDestinationInExternalPublicDir(path, filename + ".jpg");
+
+        mgr.enqueue(request);
+*/
+
+
+
+        InputStream input = null;
+        FileOutputStream output = null;
+
+        try {
+            URL url = new URL(uRl);
+            String outputName = "1.jpg";
+
+            input = url.openConnection().getInputStream();
+            output = this.openFileOutput(filename, Context.MODE_PRIVATE);
+
+            int read;
+            byte[] data = new byte[1024];
+            while ((read = input.read(data)) != -1)
+                output.write(data, 0, read);
+
+           // return outputName;
+
+            if (output != null)
+                output.close();
+            if (input != null)
+                input.close();
+
+        }catch (IOException e){
+            Log.e("Ioexx", "eee");
+            e.printStackTrace();
+        }
+        finally {
+
+        }
+
+
+    }
+
 
     @Override
     public void onDestroy() {
@@ -518,37 +539,6 @@ public class MainActivity extends ActionBarActivity {
         }.execute(null, null, null);
     }
 
-    // Send an upstream message.
-    public void onClick(final View view) {
-
-      /*  if (view == findViewById(R.id.send)) {
-            new AsyncTask<Void, Void, String>() {
-                @Override
-                protected String doInBackground(Void... params) {
-                    String msg = "";
-                    try {
-                        Bundle data = new Bundle();
-                        data.putString("my_message", "Hello World");
-                        data.putString("my_action", "com.google.android.gcm.demo.app.ECHO_NOW");
-                        String id = Integer.toString(msgId.incrementAndGet());
-                        gcm.send(SENDER_ID + "@gcm.googleapis.com", id, data);
-                        msg = "Sent message";
-                    } catch (IOException ex) {
-                        msg = "Error :" + ex.getMessage();
-                    }
-                    return msg;
-                }
-
-                @Override
-                protected void onPostExecute(String msg) {
-                    mDisplay.append(msg + "\n");
-                }
-            }.execute(null, null, null);
-        } else if (view == findViewById(R.id.clear)) {
-            mDisplay.setText("");
-        } */
-    }
-
     /**
      * @return Application's version code from the {@code PackageManager}.
      */
@@ -571,104 +561,6 @@ public class MainActivity extends ActionBarActivity {
         return getSharedPreferences(MainActivity.class.getSimpleName(),
                 Context.MODE_PRIVATE);
     }
-    /**
-     * Sends the registration ID to your server over HTTP, so it can use GCM/HTTP or CCS to send
-     * messages to your app. Not needed for this demo since the device sends upstream messages
-     * to a server that echoes back the message using the 'from' address in the message.
-     */
-    private int sendRegistrationIdToBackend() {
-        // Your implementation here.
-
-        Log.e("Register Id: " , " Background");
-        // Create a new HttpClient and Post Header
-        HttpClient httpclient = new DefaultHttpClient();
-        HttpPost httppost = new HttpPost(BaseUrl+"app_users/register_app_user");
-
-        String reg_id = getRegistrationId(getApplicationContext());
-
-        Log.e("reg_id backend: " , reg_id);
-
-        int code = -1;
-
-        try {
-            // Add your data
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-            nameValuePairs.add(new BasicNameValuePair("reg_id", reg_id));
-            nameValuePairs.add(new BasicNameValuePair("android_id", "Test android id"));
-            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-            // Execute HTTP Post Request
-            HttpResponse response = httpclient.execute(httppost);
-            code = response.getStatusLine().getStatusCode();
-            Log.e("Response: 1 " , code + "");
-
-
-        } catch (ClientProtocolException e) {
-            // TODO Auto-generated catch block
-            Log.e("First error: " , e.toString());
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            Log.e("second error: " , e.toString());
-        }
-
-        return code;
-    }
-
-    public void registerGcmKeyAsync() { // RETIRE this function
-        new AsyncTask<Void, Void, String>() {
-            @Override
-            protected String doInBackground(Void... params) {
-
-                Log.e("Register Id: " , " Background");
-                // Create a new HttpClient and Post Header
-                HttpClient httpclient = new DefaultHttpClient();
-                HttpPost httppost = new HttpPost(BaseUrl+"app_users/register_app_user");
-
-                String reg_id = getRegistrationId(getApplicationContext());
-
-                Log.e("reg_id backend: " , reg_id);
-
-                int code = -1;
-
-
-                try {
-                    // Add your data
-                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-                    nameValuePairs.add(new BasicNameValuePair("reg_id", reg_id));
-                    nameValuePairs.add(new BasicNameValuePair("android_id", "Test android id"));
-                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-                    // Execute HTTP Post Request
-                    HttpResponse response = httpclient.execute(httppost);
-                    code = response.getStatusLine().getStatusCode();
-                    Log.e("Response: 1 " , code + "");
-
-                    response = null;
-                } catch (ClientProtocolException e) {
-                    // TODO Auto-generated catch block
-                    Log.e("First error: " , e.toString());
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    Log.e("second error: " , e.toString());
-                }finally {
-
-                    httpclient = null;
-                    httppost = null;
-
-                }
-
-
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(String s) {
-                super.onPostExecute(s);
-            }
-
-        }.execute(null,null,null);
-    }
-
     private void postRegId() {
 
         RequestQueue rq = Volley.newRequestQueue(this);

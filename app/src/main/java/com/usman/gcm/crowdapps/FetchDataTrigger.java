@@ -30,7 +30,7 @@ import java.util.ArrayList;
 public class FetchDataTrigger extends IntentService {
     public static final String url = "imsg";
     public static final String description = "omsg";
-    private static final String BaseUrl = "http://192.168.1.17:3000/";
+    private static final String BaseUrl = "http://192.168.1.2:3000/";
     final DatabaseHandler db = new DatabaseHandler(this);
 
 
@@ -76,7 +76,7 @@ public class FetchDataTrigger extends IntentService {
                         title = response.getString("title");
                         Log.e("Titlee", title);
                         c.setDescription(response.getString("description"));
-                        c.setImage_path( BaseUrl + response.getString("avatar_url_thumb"));
+                        c.setImage_path( BaseUrl + response.getString("avatar_url_original"));
                         if (db.isCategoryAlreadyExists(response.getInt("id")) == false){
                             Log.e("Going to download ", response.getString("title"));
                             downloadFile(c.getImage_path(), "", response.getInt("id")+ "");
@@ -108,7 +108,7 @@ public class FetchDataTrigger extends IntentService {
                                 b.setCategory_id(objBox.getInt("category_id"));
                                 b.setTitle(objBox.getString("title"));
                                 b.setDescription(objBox.getString("description"));
-                                b.setImage_path(BaseUrl + objBox.getString("avatar_url_medium"));
+                                b.setImage_path(BaseUrl + objBox.getString("avatar_url_original"));
                                 if(db.isBoxAlreadyExists(objBox.getInt("id")) == false) {
                                     Log.e("Title folder", title);
                                     downloadFile(b.getImage_path(), title, objBox.getInt("id") + "");
