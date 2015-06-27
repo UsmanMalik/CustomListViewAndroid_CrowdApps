@@ -19,9 +19,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,7 +86,7 @@ public class ViewGallery extends Activity {
 
 
 
-        file = new File(getFilesDir()
+        file = new File(Environment.getExternalStorageDirectory()
                 + File.separator + "CrowdApps"+ File.separator+title);
         if (file.exists() && file.isDirectory()) {
             Toast.makeText(this, "File exists! " + file.getAbsolutePath(), Toast.LENGTH_SHORT)
@@ -117,16 +114,16 @@ public class ViewGallery extends Activity {
             String filePath =  file.getAbsolutePath()+File.separator;
 
             // Create a String array for FilePathStrings
-            FilePathStrings = new String[boxList.size()];
+            FilePathStrings = new String[listFile.length];
             // Create a String array for FileNameStrings
-            FileNameStrings = new String[boxList.size()];
-            Log.e("boxlist size: ", boxList.size()+" filepath" + filePath);
+            FileNameStrings = new String[listFile.length];
+            Log.e("boxlist size: ", boxList.size()+"");
             for (int i = 0; i < boxList.size(); i++) {
                 // Get the path of the image file
                 FilePathStrings[i] = filePath+boxList.get(i).getId()+ ""+".jpg";
                 Toast.makeText(this, FilePathStrings[i].toString(), Toast.LENGTH_SHORT)
                        .show();                // Get the name image file
-                //Log.e(" Absolute Path: ", listFile[i].getAbsolutePath().toString());
+                Log.e(" Absolute Path: ", listFile[i].getAbsolutePath().toString());
                 Log.e("Iamge Path: ", FilePathStrings[i].toString());
 
                 FileNameStrings[i] = boxList.get(i).getId()+ ""+".jpg";
@@ -169,7 +166,7 @@ public class ViewGallery extends Activity {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             View itemView = mLayoutInflater.inflate(R.layout.image_item, container, false);
-            //Log.e("Position: ", position + " "+ FilePathStrings[position] );
+            Log.e("Position: ", position + " "+ FilePathStrings[position] );
             ImageView imageView = (ImageView) itemView.findViewById(R.id.imageView);
             TextView titleView = (TextView) itemView.findViewById(R.id.boxTitle);
             TextView descriptionView = (TextView) itemView.findViewById(R.id.description);
@@ -177,30 +174,10 @@ public class ViewGallery extends Activity {
             //File imgFile = new  File("/storage/sdcard0/CrowdApps/Android/1.jpg");
             //Log.e("Image File Path: ", imgFile.getAbsolutePath());
 
-           // Bitmap bitmap = BitmapFactory.decodeFile(FilePathStrings[position]);
-           // Log.e("bitmap ++" ,bitmap.getHeight()+"");
+            Bitmap bitmap = BitmapFactory.decodeFile(FilePathStrings[position]);
+            Log.e("bitmap ++" ,bitmap.getHeight()+"");
 
-
-            Bitmap b = null;
-            FileInputStream fis;
-            try {
-                fis = getApplicationContext().openFileInput(boxList.get(position).getId()+"jpg");
-                b = BitmapFactory.decodeStream(fis);
-                fis.close();
-
-            }
-            catch (FileNotFoundException e) {
-                Log.d("File not found", "file not found");
-                e.printStackTrace();
-            }
-            catch (IOException e) {
-                Log.d("Io exception", "io exception");
-                e.printStackTrace();
-            }
-
-
-
-            imageView.setImageBitmap(b);
+            imageView.setImageBitmap(bitmap);
 
             titleView.setText(boxList.get(position).getTitle());
             descriptionView.setText(boxList.get(position).getDescription());

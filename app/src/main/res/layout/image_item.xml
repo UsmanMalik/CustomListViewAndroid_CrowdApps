@@ -2,24 +2,30 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content"
+    android:background="@drawable/mountains">
 
 
     <TextView
         android:id="@+id/boxTitle"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="5dip"
-        android:paddingTop="12dip" />
+        android:autoText="false"
+        android:textSize="40dp"
+        android:textStyle="bold"
+        android:paddingTop="10dp"
+        android:paddingRight="5dp"
+        android:paddingBottom="1dp"
+        />
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
         android:layout_centerInParent="true"
         android:layout_below="@+id/boxTitle"
+        android:scaleType="fitCenter"
         android:adjustViewBounds="true"
-        android:scaleType="fitEnd"
 
         />
 
@@ -28,8 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:paddingBottom="0dp"
-        android:paddingLeft="2dip"
-        android:paddingRight="10dip"
-        android:paddingTop="0dp" />
+
+         />
 </RelativeLayout>
+

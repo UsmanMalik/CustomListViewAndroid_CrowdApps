@@ -30,7 +30,7 @@ import java.util.ArrayList;
 public class FetchDataTrigger extends IntentService {
     public static final String url = "imsg";
     public static final String description = "omsg";
-    private static final String BaseUrl = "http://192.168.1.2:3000/";
+    private static final String BaseUrl = "http://192.168.1.4:3000/";
     final DatabaseHandler db = new DatabaseHandler(this);
 
 
