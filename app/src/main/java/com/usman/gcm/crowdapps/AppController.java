@@ -7,6 +7,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.usman.gcm.crowdapps.Utils.LruBitmapCache;
 
 public class AppController extends Application {
 
@@ -14,7 +15,6 @@ public class AppController extends Application {
 
     private RequestQueue mRequestQueue;
     private ImageLoader mImageLoader;
-
     private static AppController mInstance;
 
     @Override

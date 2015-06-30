@@ -62,7 +62,7 @@
   so only GCM services can send data messages for the app.
 -->
         <receiver
-            android:name=".GcmBroadcastReceiver"
+            android:name=".GCM.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <!-- Receives the actual messages. -->
@@ -71,10 +71,10 @@
                 <category android:name="com.google.android.gcm.demo.app" />
             </intent-filter>
         </receiver>
-        <service android:name=".GcmIntentService" />
+        <service android:name=".GCM.GcmIntentService" />
         <!-- Declaring Service in Manifest -->
         <service
-            android:name=".FetchDataTrigger" />
+            android:name=".GCM.FetchDataTrigger" />
     </application>
 
 </manifest>

@@ -1,9 +1,11 @@
-package com.usman.gcm.crowdapps;
+package com.usman.gcm.crowdapps.GCM;
 
 /**
  * Created by usman on 5/29/15.
  */
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.usman.gcm.crowdapps.MainActivity;
+import com.usman.gcm.crowdapps.R;
 
 import android.app.IntentService;
 import android.app.NotificationManager;
@@ -14,9 +16,6 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * This {@code IntentService} does the actual handling of the GCM message.

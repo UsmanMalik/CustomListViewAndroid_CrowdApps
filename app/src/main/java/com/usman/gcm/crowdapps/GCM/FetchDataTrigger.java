@@ -1,4 +1,4 @@
-package com.usman.gcm.crowdapps;
+package com.usman.gcm.crowdapps.GCM;
 
 import android.app.DownloadManager;
 import android.app.IntentService;
@@ -12,10 +12,11 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.usman.gcm.crowdapps.Database.DatabaseHandler;
+import com.usman.gcm.crowdapps.Model.Box;
+import com.usman.gcm.crowdapps.Model.Category;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,7 +31,7 @@ import java.util.ArrayList;
 public class FetchDataTrigger extends IntentService {
     public static final String url = "imsg";
     public static final String description = "omsg";
-    private static final String BaseUrl = "http://192.168.1.4:3000/";
+    private static final String BaseUrl = "http://192.168.7.130:3000/";
     final DatabaseHandler db = new DatabaseHandler(this);
 
 

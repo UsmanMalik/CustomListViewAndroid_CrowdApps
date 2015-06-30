@@ -1,6 +1,5 @@
-package com.usman.gcm.crowdapps;
+package com.usman.gcm.crowdapps.Database;
 
-import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -8,19 +7,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import com.usman.gcm.crowdapps.Model.Box;
+import com.usman.gcm.crowdapps.Model.Category;
+//import com.usman.gcm.crowdapps.Movie;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by usman on 5/20/15.
@@ -114,7 +106,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     // Adding new contact
 
 
-    public void addContact(Movie contact) {
+   /* public void addContact(Movie contact) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -124,7 +116,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // Inserting Row
         db.insert(TABLE_CONTACTS, null, values);
         db.close(); // Closing database connection
-    }
+    }*/
 
     public void addCategory(Category category) {
 
@@ -202,7 +194,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
 
     // Getting single contact
-    public Movie getContact(int id) {
+   /* public Movie getContact(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_CONTACTS, new String[] { KEY_ID,
@@ -216,7 +208,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.close();
         // return contact
         return contact;
-    }
+    }*/
 
     // Getting single contact
     public List<Box> getCategoryBoxes(int id) {
@@ -250,7 +242,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     // Getting All Contacts
-    public List<Movie> getAllContacts() {
+   /* public List<Movie> getAllContacts() {
         List<Movie> contactList = new ArrayList<Movie>();
         // Select All Query
         String selectQuery = "SELECT  * FROM " + TABLE_CONTACTS;
@@ -274,7 +266,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         // return contact list
         return contactList;
-    }
+    }*/
 
 
     // Getting All Categories
@@ -339,7 +331,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
 
     // Updating single contact
-    public int updateContact(Movie contact) {
+   /* public int updateContact(Movie contact) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -358,7 +350,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.delete(TABLE_CONTACTS, KEY_ID + " = ?",
                 new String[]{String.valueOf(-1)});
         db.close();
-    }
+    } */
 
 
     // Getting contacts Count

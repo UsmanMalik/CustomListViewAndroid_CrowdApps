@@ -4,11 +4,6 @@ package com.usman.gcm.crowdapps;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,6 +53,10 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.usman.gcm.crowdapps.Adapter.CustomListAdapter;
+import com.usman.gcm.crowdapps.Database.DatabaseHandler;
+import com.usman.gcm.crowdapps.Model.Box;
+import com.usman.gcm.crowdapps.Model.Category;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -66,10 +65,10 @@ public class MainActivity extends ActionBarActivity {
     // Log tag
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private static final String BaseUrl = "http://192.168.1.4:3000/";
+    private static final String BaseUrl = "http://192.168.1.2:3000/";
     private static final String url = BaseUrl+"api/category/complete_data";
     private ProgressDialog pDialog;
-    private List<Movie> movieList = new ArrayList<Movie>(); // REMOVE
+    //private List<Movie> movieList = new ArrayList<Movie>(); // REMOVE
     private List<Category> categoryList = new ArrayList<Category>();
     private ListView listView;
     private CustomListAdapter adapter;

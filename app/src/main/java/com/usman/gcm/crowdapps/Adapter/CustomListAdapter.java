@@ -1,4 +1,4 @@
-package com.usman.gcm.crowdapps;
+package com.usman.gcm.crowdapps.Adapter;
 
 
 import java.util.List;
@@ -13,11 +13,14 @@ import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
+import com.usman.gcm.crowdapps.AppController;
+import com.usman.gcm.crowdapps.Model.Category;
+import com.usman.gcm.crowdapps.R;
 
 public class CustomListAdapter extends BaseAdapter {
     private Activity activity;
     private LayoutInflater inflater;
-    private List<Movie> movieItems;
+    //private List<Movie> movieItems;
     private List<Category> categoryItems;
     ImageLoader imageLoader = AppController.getInstance().getImageLoader();
 

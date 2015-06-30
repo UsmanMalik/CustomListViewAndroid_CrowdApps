@@ -1,4 +1,4 @@
-package com.usman.gcm.crowdapps;
+package com.usman.gcm.crowdapps.Model;
 
 /**
  * Created by usman on 5/28/15.
